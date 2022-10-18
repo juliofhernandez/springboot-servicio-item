@@ -13,7 +13,8 @@ import com.microservices.springboot.app.item.models.service.ItemService;
 public class ItemController {
 	
 	@Autowired
-	@Qualifier("itemServiceImplFeign")
+//	@Qualifier("itemServiceImplFeign")
+	@Qualifier("itemServiceImplRestTemplate")
 	private ItemService itemService;
 	
 	@GetMapping("/items")
