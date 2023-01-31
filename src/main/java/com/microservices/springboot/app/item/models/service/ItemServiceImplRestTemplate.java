@@ -31,7 +31,7 @@ public class ItemServiceImplRestTemplate implements ItemService {
 		Map<String, String> pathVariables = new HashMap<String,String>();
 		pathVariables.put("id", id.toString());
 //		Product product = restTemplate.getForObject("http://localhost:8001/products/{id}", Product.class,pathVariables);
-		Product product = restTemplate.getForObject("http://service-products/products/{id}", Product.class,pathVariables);
+		Product product = restTemplate.getForObject("http://service-products/products/{id}", Product.class, pathVariables);
 		return new Item(product, quantity);
 	}
 
