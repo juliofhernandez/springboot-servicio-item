@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.microservices.springboot.app.item.models.Item;
 import com.microservices.springboot.app.item.models.Product;
@@ -20,7 +22,9 @@ public class ItemController {
 	private ItemService itemService;
 	
 	@GetMapping("/items")
-	public List<Item> findAll(){
+	public List<Item> findAll(@RequestParam(name = "nombre") String nombre, @RequestHeader(name = "token-request") String tokenRequest){
+		System.out.println("Nombre: "+nombre);
+		System.out.println("tokenRequest: "+tokenRequest);
 		return itemService.findAll();
 	}
 	
