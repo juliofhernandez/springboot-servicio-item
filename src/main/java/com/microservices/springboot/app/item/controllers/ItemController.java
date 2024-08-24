@@ -47,7 +47,7 @@ public class ItemController {
 		Item item = new Item();
 		Product product = new Product();
 		product.setId(id);
-		product.setName("Camara Sony");
+		product.setName("Camara Sony [Metodo Alternativo]");
 		product.setPrice(500.00);
 		item.setProduct(product);
 		item.setQuantity(quantity);
