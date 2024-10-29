@@ -1,8 +1,8 @@
-package com.microservices.springboot.app.item.models;
+package com.microservices.item.models;
 
 import java.util.Date;
 
-public class Product {
+public class ProductDTO {
 	private Long id;
 	private String name;
 	private Double price;

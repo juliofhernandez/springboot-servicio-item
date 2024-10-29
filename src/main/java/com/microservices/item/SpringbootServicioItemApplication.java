@@ -1,4 +1,4 @@
-package com.microservices.springboot.app.item;
+package com.microservices.item;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
