@@ -3,14 +3,13 @@ package com.microservices.item.controllers;
 import java.util.List;
 import java.util.Random;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.microservices.item.models.Item;
 import com.microservices.item.models.ProductDTO;
 import com.microservices.item.services.ItemService;
@@ -38,18 +37,35 @@ public class ItemController {
 	 * @return 			a list of {@link Item} available
 	 */
 	@GetMapping("/items")
-	public List<Item> findAll(){
+	public List<Item> findAll(@RequestParam(name="paramRequestItems", required=false) String paramRequestItems, @RequestHeader(name = "X-Header-Request-Items", required = false) String headerRequestItems) {
+		logger.info("Filtros Gateway Factory de fábrica:");
+		logger.info("paramRequestItems: " + paramRequestItems);
+		logger.info("X-Header-Request-Items: " + headerRequestItems);
 		return itemService.findAll();
 	}
 	
 	/**
 	 * Retrieves an {@link Item] by its ID
+	 * If an error occurs, it falls back to the {@code metodoAlternativo} method.
+	 * @param id		the ID of the {@link Item} to be retrieved
+	 * @return 			the {@Link ResponseEntity} containing the {@link Item} corresponding to the specified ID
+	 */
+//	@GetMapping("/items/{id}")
+//	public ResponseEntity<Item> findById(@PathVariable Long id) {
+//		return circuitBreakerFactory.create("items").run(() -> ResponseEntity.ok(itemService.findById(id).get()), e -> metodoAlternativo(id, e));
+//	}
+
+	/**
+	 * Retrieves an {@link Item] by its ID
+	 * Uses a Circuit Breaker configured in the application.yml file.
+	 * If an error occurs, it falls back to the {@code metodoAlternativo} method.
 	 * @param id		the ID of the {@link Item} to be retrieved
 	 * @return 			the {@Link ResponseEntity} containing the {@link Item} corresponding to the specified ID
 	 */
 	@GetMapping("/items/{id}")
+	@CircuitBreaker(name = "items",fallbackMethod = "metodoAlternativo")
 	public ResponseEntity<Item> findById(@PathVariable Long id) {
-		return circuitBreakerFactory.create("items").run(() -> ResponseEntity.ok(itemService.findById(id).get()), e -> metodoAlternativo(id, e));
+		return ResponseEntity.ok(itemService.findById(id).get());
 	}
 	
 	/**

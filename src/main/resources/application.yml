@@ -14,7 +14,7 @@ resilience4j:
   timelimiter:
     configs:
       default:
-        timeout-duration: 2s
+        timeout-duration: 3s
     instances:
       items:
         base-config: default
