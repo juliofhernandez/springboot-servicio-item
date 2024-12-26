@@ -2,8 +2,10 @@ package com.microservices.item.controllers;
 
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -43,38 +45,33 @@ public class ItemController {
 		logger.info("X-Header-Request-Items: " + headerRequestItems);
 		return itemService.findAll();
 	}
-	
-	/**
-	 * Retrieves an {@link Item] by its ID
-	 * If an error occurs, it falls back to the {@code metodoAlternativo} method.
-	 * @param id		the ID of the {@link Item} to be retrieved
-	 * @return 			the {@Link ResponseEntity} containing the {@link Item} corresponding to the specified ID
-	 */
-//	@GetMapping("/items/{id}")
-//	public ResponseEntity<Item> findById(@PathVariable Long id) {
-//		return circuitBreakerFactory.create("items").run(() -> ResponseEntity.ok(itemService.findById(id).get()), e -> metodoAlternativo(id, e));
-//	}
 
 	/**
-	 * Retrieves an {@link Item] by its ID
-	 * Uses a Circuit Breaker configured in the application.yml file.
-	 * If an error occurs, it falls back to the {@code metodoAlternativo} method.
-	 * @param id		the ID of the {@link Item} to be retrieved
-	 * @return 			the {@Link ResponseEntity} containing the {@link Item} corresponding to the specified ID
+	 * Retrieves an Item by its ID asynchronously.
+	 * This method utilizes the @CircuitBreaker annotation to handle faults and the @TimeLimiter annotation to enforce a time limit on execution.
+	 * - @CircuitBreaker uses the configuration specified in the application.yml file.
+	 *   If an error occurs during the retrieval process, the fallback method metodoAlternativo is executed.
+	 * - @TimeLimiter enforces a timeout as defined in the application.yml file.
+	 *   If the execution exceeds the configured limit, a TimeoutException is thrown.
+	 * @param id the ID of the Item to be retrieved
+	 * @return a CompletableFuture containing a ResponseEntity with the retrieved Item, or an appropriate fallback response if a fault or timeout occurs
 	 */
 	@GetMapping("/items/{id}")
 	@CircuitBreaker(name = "items",fallbackMethod = "metodoAlternativo")
-	public ResponseEntity<Item> findById(@PathVariable Long id) {
-		return ResponseEntity.ok(itemService.findById(id).get());
+	@TimeLimiter(name = "items")
+	public CompletableFuture<?> findById(@PathVariable Long id) {
+		return CompletableFuture.supplyAsync(() -> ResponseEntity.ok(itemService.findById(id).get()));
 	}
-	
+
 	/**
-	 * Alternative method that handles fallback logic when an error occurs during the original request
-	 * @param id		the ID of the {@link ProductDTO} to be sent in the returned {@link Item}
-	 * @param throwable	the {@link Throwable} that triggered this fallback method, its message is logged
-	 * @return			an {ResponseEntity Item} containing the {@link Item} containing the default {@link ProductDTO} with the fixed data
+	 * Alternative method that handles fallback logic when an error occurs during the original request.
+	 * This method is triggered by the @CircuitBreaker fallback mechanism.
+	 *
+	 * @param id the ID of the ProductDTO to be included in the returned Item
+	 * @param throwable the Throwable that triggered this fallback method; its message is logged for debugging purposes
+	 * @return a CompletableFuture containing a ResponseEntity with the default Item, which includes a ProductDTO with predefined data
 	 */
-	public ResponseEntity<Item> metodoAlternativo(Long id, Throwable throwable) {
+	public CompletableFuture<?> metodoAlternativo(Long id, Throwable throwable) {
 		logger.info(throwable.getMessage());
 		Item item = new Item();
 		ProductDTO product = new ProductDTO();
@@ -83,6 +80,6 @@ public class ItemController {
 		product.setPrice(500.00);
 		item.setProductDTO(product);
 		item.setQuantity(random.nextInt(10)+1);
-		return ResponseEntity.ok(item);
+		return CompletableFuture.supplyAsync(()->ResponseEntity.ok(item));
 	}
 }

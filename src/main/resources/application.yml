@@ -7,14 +7,14 @@ resilience4j:
         wait-duration-in-open-state: 10s
         permitted-number-of-calls-in-half-open-state: 3
         slow-call-rate-threshold: 50
-        slow-call-duration-threshold: 2s
+        slow-call-duration-threshold: 1s
     instances:
       items:
         base-config: default
   timelimiter:
     configs:
       default:
-        timeout-duration: 3s
+        timeout-duration: 2s
     instances:
       items:
         base-config: default
