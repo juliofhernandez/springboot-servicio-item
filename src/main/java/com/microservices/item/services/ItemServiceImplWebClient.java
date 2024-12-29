@@ -6,6 +6,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Mono;
 
 import java.util.*;
 
@@ -73,6 +74,50 @@ public class ItemServiceImplWebClient implements ItemService {
                         .retrieve()
                         .bodyToMono(ProductDTO.class)
                         .map(productDTO -> new Item(productDTO, random.nextInt(10) + 1))
+                        .block()
+        );
+    }
+
+    @Override
+    public Optional<Item>  save(Item item) {
+        return Optional.ofNullable(
+          webClient.build()
+                  .post()
+                  .accept(MediaType.APPLICATION_JSON)
+                  .bodyValue(item.getProductDTO())
+                  .retrieve()
+                  .bodyToMono(ProductDTO.class)
+                  .map(productDTO -> new Item(productDTO, random.nextInt(10)+1))
+                  .block()
+        );
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        Map<String, Long> params = new HashMap<>();
+        params.put("id", id);
+        webClient.build()
+                .delete()
+                .uri("/{id}", params)
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .bodyToMono(Void.class)
+                .block();
+    }
+
+    @Override
+    public Optional<Item> update(Long id, Item item) {
+        Map<String, Long> params = new HashMap<>();
+        params.put("id", id);
+        return Optional.ofNullable(
+                webClient.build()
+                        .put()
+                        .uri("/{id}", params)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .bodyValue(item.getProductDTO())
+                        .retrieve()
+                        .bodyToMono(ProductDTO.class)
+                        .map(productDTO -> new Item(productDTO, random.nextInt(10)+1))
                         .block()
         );
     }

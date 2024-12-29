@@ -3,8 +3,7 @@ package com.microservices.item.clients;
 import java.util.List;
 
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
 
 import com.microservices.item.models.ProductDTO;
 
@@ -14,17 +13,25 @@ import com.microservices.item.models.ProductDTO;
  * la información en formato JSON (REST). Esta información es mapeada a objetos ProductDTO, permitiendo su uso
  * en formato Java dentro del servicio Items.
  * 
- * En este caso, obtenemos la informacion no de un repository o dao ì, si no de este cliente que a su vez obtiene
+ * En este caso, obtenemos la informacion no de un repository o dao, si no de este cliente que a su vez obtiene
  * la informacion de un servicio externo.
  */
 
 @FeignClient(name = "service-products")
-public interface ProductRestClient {
+public interface ProductFeignClient {
 	
-	@GetMapping("/products")
+	@GetMapping("/products/")
 	public List<ProductDTO> findAll();
 	
 	@GetMapping("/products/{id}")
 	public ProductDTO findById(@PathVariable Long id);
-	
+
+	@PostMapping("/products")
+	public ProductDTO save(@RequestBody ProductDTO productDTO);
+
+	@PutMapping("/products/{id}")
+	public ProductDTO update(@PathVariable Long id,@RequestBody ProductDTO productDTO);
+
+	@DeleteMapping("/products/{id}")
+	public void delete(@PathVariable Long id);
 }

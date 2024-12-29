@@ -49,4 +49,19 @@ public class ItemServiceImplRestTemplate implements ItemService {
 		return Optional.of(new Item(productDTO, new Random().nextInt(10)+1));	
 	}
 
+	@Override
+	public Optional<Item> save(Item item) {
+		return Optional.empty();
+	}
+
+	@Override
+	public void deleteById(Long id) {
+
+	}
+
+	@Override
+	public Optional<Item> update(Long id, Item item) {
+		return Optional.empty();
+	}
+
 }
