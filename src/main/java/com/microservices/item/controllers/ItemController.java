@@ -123,16 +123,32 @@ public class ItemController {
 		return ResponseEntity.ok(jsonResponse);
 	}
 
+	/**
+	 * Crea un nuevo item en el sistema. -> No se crea un Item, ya que no hay un Database de items, se crea un producto.
+	 * @param item El item que se desea guardar. El objeto debe ser proporcionado en el cuerpo de la solicitud.
+	 * @return Un `ResponseEntity` que contiene el item guardado y un estado HTTP 201 si la creación fue exitosa.
+	 */
 	@PostMapping
 	public ResponseEntity<Item> save(@RequestBody Item item) {
 		return ResponseEntity.status(HttpStatus.CREATED).body(itemService.save(item).get());
 	}
 
+	/**
+	 * Actualiza un item existente en el sistema. -> No se actualiza un Item, ya que no hay un Database de items, se actualiza un producto.
+	 * @param id El identificador único del item que se desea actualizar.Este valor se pasa en la URL como un parámetro de ruta.
+	 * @param item El objeto `Item` que contiene los nuevos datos que se desean actualizar en el item. El objeto debe ser proporcionado en el cuerpo de la solicitud.
+	 * @return Un `ResponseEntity` que contiene el item actualizado y un estado HTTP 201 si la actualización fue exitosa.
+	 */
 	@PutMapping("/{id}")
 	public ResponseEntity<Item> update(@PathVariable Long id,@RequestBody Item item) {
 		return ResponseEntity.status(HttpStatus.CREATED).body(itemService.update(id,item).get());
 	}
 
+	/**
+	 * Elimina un item existente del sistema. -> No se elimina un Item, ya que no hay un Database de items, se elimina un producto.
+	 * @param id El identificador único del item que se desea eliminar. Este valor se pasa en la URL como un parámetro de ruta.
+	 * @return Un `ResponseEntity` con un estado HTTP 204 si la eliminación fue exitosa.
+	 */
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> delete(@PathVariable Long id) {
 		itemService.deleteById(id);

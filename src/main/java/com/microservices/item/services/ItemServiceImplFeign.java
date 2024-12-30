@@ -33,7 +33,6 @@ public class ItemServiceImplFeign implements ItemService {
     /**
      * Retrieves an {@link Item} by its ID and quantity.
      * @param id       the ID of the {@link ProductDTO} to be retrieved.
-     * @param quantity the quantity of the {@link Item} to be created.
      * @return an {@link Item} containing the retrieved {@link ProductDTO} and the specified quantity.
      */
     @Override
@@ -45,7 +44,7 @@ public class ItemServiceImplFeign implements ItemService {
     @Override
     public Optional<Item> save(Item item) {
         ProductDTO productDTO = productFeignClient.save(item.getProductDTO());
-        return Optional.of(new Item(productDTO, random.nextInt(10) + 1));
+        return Optional.of(new Item(productDTO, item.getQuantity()));
     }
 
     @Override
@@ -56,7 +55,6 @@ public class ItemServiceImplFeign implements ItemService {
     @Override
     public Optional<Item> update(Long id, Item item) {
         ProductDTO productDTO = productFeignClient.update(id, item.getProductDTO());
-        return Optional.of(new Item(productDTO, random.nextInt(10) + 1));
+        return Optional.of(new Item(productDTO, item.getQuantity()));
     }
-
 }
