@@ -20,18 +20,18 @@ import com.microservices.item.models.ProductDTO;
 @FeignClient(name = "service-products")
 public interface ProductFeignClient {
 	
-	@GetMapping("/products/")
+	@GetMapping()
 	public List<ProductDTO> findAll();
 	
-	@GetMapping("/products/{id}")
+	@GetMapping("/{id}")
 	public ProductDTO findById(@PathVariable Long id);
 
-	@PostMapping("/products")
+	@PostMapping()
 	public ProductDTO save(@RequestBody ProductDTO productDTO);
 
-	@PutMapping("/products/{id}")
+	@PutMapping("/{id}")
 	public ProductDTO update(@PathVariable Long id,@RequestBody ProductDTO productDTO);
 
-	@DeleteMapping("/products/{id}")
+	@DeleteMapping("/{id}")
 	public void delete(@PathVariable Long id);
 }

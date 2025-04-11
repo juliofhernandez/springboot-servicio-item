@@ -7,6 +7,7 @@ import org.springframework.cloud.circuitbreaker.resilience4j.Resilience4JCircuit
 import org.springframework.cloud.circuitbreaker.resilience4j.Resilience4JConfigBuilder;
 import org.springframework.cloud.client.circuitbreaker.Customizer;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.cloud.client.loadbalancer.reactive.ReactorLoadBalancerExchangeFilterFunction;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
@@ -27,34 +28,27 @@ public class AppConfig {
         return new RestTemplate();
     }
 
-    /**
-     * Proporciona un {@link WebClient.Builder} con una URL base configurada para realizar solicitudesa los microservicios con balanceo de carga habilitado.
-     * @return un {@link WebClient.Builder} configurado con la URL base proporcionada.
-     */
-    @Bean(name = "webClientBuilder")
-    @LoadBalanced
-    public WebClient.Builder webClientBuilder() {
-        return WebClient.builder().baseUrl(this.baseurl);
+    @Bean
+    public WebClient webClient(WebClient.Builder builder, ReactorLoadBalancerExchangeFilterFunction loadbalancerExchangeFilterFunction) {
+        return builder
+                .filter(loadbalancerExchangeFilterFunction)
+                .baseUrl(baseurl)
+                .build();
     }
 
-    /**
-     * Configura un {@link Resilience4JCircuitBreakerFactory} con la configuración predeterminada para el Circuit Breaker y Time Limiter.
-     * Establece parámetros como la tasa de fallos, el tamaño de la ventana deslizante, y los tiempos de espera para los estados abierto y medio abierto del Circuit Breaker.
-     * @return un {@link Customizer} que configura el {@link Resilience4JCircuitBreakerFactory} con las configuraciones predeterminadas.
-     */
     @Bean
     public Customizer<Resilience4JCircuitBreakerFactory> customizer() {
         return factory -> factory.configureDefault(idCircuitBreaker -> new Resilience4JConfigBuilder(idCircuitBreaker)
-            .circuitBreakerConfig(
-                CircuitBreakerConfig.custom()
-                            .slidingWindowSize(6)
-                            .failureRateThreshold(50)
-                            .waitDurationInOpenState(Duration.ofSeconds(10L))
-                            .permittedNumberOfCallsInHalfOpenState(3)
-                            .slowCallRateThreshold(50)
-                            .slowCallDurationThreshold(Duration.ofSeconds(1L))
-                            .build())
-            .timeLimiterConfig(TimeLimiterConfig.custom().timeoutDuration(Duration.ofSeconds(3L)).build())
-            .build());
+                .circuitBreakerConfig(
+                        CircuitBreakerConfig.custom()
+                                .slidingWindowSize(6)
+                                .failureRateThreshold(50)
+                                .waitDurationInOpenState(Duration.ofSeconds(10L))
+                                .permittedNumberOfCallsInHalfOpenState(3)
+                                .slowCallRateThreshold(50)
+                                .slowCallDurationThreshold(Duration.ofSeconds(1L))
+                                .build())
+                .timeLimiterConfig(TimeLimiterConfig.custom().timeoutDuration(Duration.ofSeconds(3L)).build())
+                .build());
     }
 }
